@@ -1,3 +1,55 @@
+python-cpuinfo (9.0.0+git20221119-1) unstable; urgency=medium
+
+  * New upstream snapshot.
+    + Add support for loongarch64 architecture. (Closes: #1066082)
+  * debian/copyright: Update information.
+
+ -- Boyuan Yang <byang@debian.org>  Tue, 12 Mar 2024 11:05:23 -0400
+
+python-cpuinfo (9.0.0-1) unstable; urgency=medium
+
+  * Team upload.
+  * debian/control: Remove retired uploader. (Closes: #1050269)
+
+  [ Bo YU ]
+  * New upstream version 9.0.0. (Closes: #1032957)
+  * Set std-ver to 4.6.2.
+
+ -- Boyuan Yang <byang@debian.org>  Tue, 12 Dec 2023 15:55:57 -0500
+
+python-cpuinfo (5.0.0-5) unstable; urgency=medium
+
+  * Team upload.
+  * d/control: add b-d on pytest to force tests to run via something other
+    than the deprecated "python3 setup.py test" command.
+
+ -- Louis-Philippe Véronneau <pollo@debian.org>  Sat, 03 Dec 2022 17:06:04 -0500
+
+python-cpuinfo (5.0.0-4) UNRELEASED; urgency=medium
+
+  * Update standards version to 4.6.1, no changes needed.
+
+ -- Debian Janitor <janitor@jelmer.uk>  Sun, 04 Sep 2022 20:40:59 -0000
+
+python-cpuinfo (5.0.0-3) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Set upstream metadata fields: Bug-Database, Bug-Submit, Repository,
+    Repository-Browse.
+
+  [ Ondřej Nový ]
+  * d/control: Update Maintainer field with new Debian Python Team
+    contact address.
+  * d/control: Update Vcs-* fields with new Debian Python Team Salsa
+    layout.
+
+  [ Debian Janitor ]
+  * Update standards version to 4.5.0, no changes needed.
+  * Bump debhelper from old 12 to 13.
+  * Update standards version to 4.5.1, no changes needed.
+
+ -- Sandro Tosi <morph@debian.org>  Fri, 03 Jun 2022 00:00:58 -0400
+
 python-cpuinfo (5.0.0-2) unstable; urgency=medium
 
   [ Ondřej Nový ]

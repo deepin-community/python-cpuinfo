@@ -5,11 +5,12 @@ from cpuinfo import *
 import helpers
 
 
-class MockDataSource(object):
+class MockDataSource:
 	bits = '64bit'
 	cpu_count = 1
 	is_windows = False
-	raw_arch_string = 'amd64'
+	arch_string_raw = 'amd64'
+	uname_string_raw = 'x86_64'
 	can_cpuid = False
 
 	@staticmethod
@@ -19,7 +20,7 @@ class MockDataSource(object):
 	@staticmethod
 	def dmesg_a():
 		retcode = 0
-		output = '''Copyright (c) 1992-2014 The FreeBSD Project.
+		output = r'''Copyright (c) 1992-2014 The FreeBSD Project.
 Copyright (c) 1979, 1980, 1983, 1986, 1988, 1989, 1991, 1992, 1993, 1994
     The Regents of the University of California. All rights reserved.
 FreeBSD is a registered trademark of The FreeBSD Foundation.
@@ -62,16 +63,16 @@ class TestPCBSD(unittest.TestCase):
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_ibm_pa_features()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_sysinfo()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_cpuid()))
-		self.assertEqual(12, len(cpuinfo._get_cpu_info_internal()))
+		self.assertEqual(13, len(cpuinfo._get_cpu_info_internal()))
 
 	def test_get_cpu_info_from_dmesg(self):
 		info = cpuinfo._get_cpu_info_from_dmesg()
 
-		self.assertEqual('Intel(R) Core(TM) i5-4440 CPU @ 3.10GHz', info['brand'])
-		self.assertEqual('3.1000 GHz', info['hz_advertised'])
-		self.assertEqual('3.1000 GHz', info['hz_actual'])
-		self.assertEqual((3100000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((3100000000, 0), info['hz_actual_raw'])
+		self.assertEqual('Intel(R) Core(TM) i5-4440 CPU @ 3.10GHz', info['brand_raw'])
+		self.assertEqual('3.1000 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('3.1000 GHz', info['hz_actual_friendly'])
+		self.assertEqual((3100000000, 0), info['hz_advertised'])
+		self.assertEqual((3100000000, 0), info['hz_actual'])
 
 		self.assertEqual(
 			['apic', 'clflush', 'cmov', 'cx8', 'de', 'fpu', 'fxsr', 'lahf',
@@ -85,16 +86,16 @@ class TestPCBSD(unittest.TestCase):
 	def test_all(self):
 		info = cpuinfo._get_cpu_info_internal()
 
-		self.assertEqual('Intel(R) Core(TM) i5-4440 CPU @ 3.10GHz', info['brand'])
-		self.assertEqual('3.1000 GHz', info['hz_advertised'])
-		self.assertEqual('3.1000 GHz', info['hz_actual'])
-		self.assertEqual((3100000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((3100000000, 0), info['hz_actual_raw'])
+		self.assertEqual('Intel(R) Core(TM) i5-4440 CPU @ 3.10GHz', info['brand_raw'])
+		self.assertEqual('3.1000 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('3.1000 GHz', info['hz_actual_friendly'])
+		self.assertEqual((3100000000, 0), info['hz_advertised'])
+		self.assertEqual((3100000000, 0), info['hz_actual'])
 		self.assertEqual('X86_64', info['arch'])
 		self.assertEqual(64, info['bits'])
 		self.assertEqual(1, info['count'])
 
-		self.assertEqual('amd64', info['raw_arch_string'])
+		self.assertEqual('amd64', info['arch_string_raw'])
 
 		self.assertEqual(
 			['apic', 'clflush', 'cmov', 'cx8', 'de', 'fpu', 'fxsr', 'lahf',

@@ -5,11 +5,12 @@ from cpuinfo import *
 import helpers
 
 
-class MockDataSource(object):
+class MockDataSource:
 	bits = '32bit'
 	cpu_count = 8
 	is_windows = False
-	raw_arch_string = 'armv7l'
+	arch_string_raw = 'armv7l'
+	uname_string_raw = ''
 	can_cpuid = False
 
 	@staticmethod
@@ -27,7 +28,7 @@ class MockDataSource(object):
 	@staticmethod
 	def cat_proc_cpuinfo():
 		returncode = 0
-		output = '''
+		output = r'''
 processor	: 0
 model name	: ARMv7 Processor rev 3 (v7l)
 BogoMIPS	: 84.00
@@ -119,7 +120,7 @@ Serial		: 0000000000000000
 	@staticmethod
 	def lscpu():
 		returncode = 0
-		output = '''
+		output = r'''
 Architecture:          armv7l
 Byte Order:            Little Endian
 CPU(s):                8
@@ -137,7 +138,7 @@ CPU min MHz:           200.0000
 	@staticmethod
 	def cpufreq_info():
 		returncode = 0
-		output = '''
+		output = r'''
 cpufrequtils 008: cpufreq-info (C) Dominik Brodowski 2004-2009
 Report errors and bugs to cpufreq@vger.kernel.org, please.
 analyzing CPU 0:
@@ -264,30 +265,30 @@ class TestLinux_Odroid_XU3_arm_32(unittest.TestCase):
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_ibm_pa_features()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_sysinfo()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_cpuid()))
-		self.assertEqual(13, len(cpuinfo._get_cpu_info_internal()))
+		self.assertEqual(14, len(cpuinfo._get_cpu_info_internal()))
 
 	def test_get_cpu_info_from_cpufreq_info(self):
 		info = cpuinfo._get_cpu_info_from_cpufreq_info()
 
-		self.assertEqual('1.4000 GHz', info['hz_advertised'])
-		self.assertEqual('1.4000 GHz', info['hz_actual'])
-		self.assertEqual((1400000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((1400000000, 0), info['hz_actual_raw'])
+		self.assertEqual('1.4000 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('1.4000 GHz', info['hz_actual_friendly'])
+		self.assertEqual((1400000000, 0), info['hz_advertised'])
+		self.assertEqual((1400000000, 0), info['hz_actual'])
 
 	def test_get_cpu_info_from_lscpu(self):
 		info = cpuinfo._get_cpu_info_from_lscpu()
 
-		self.assertEqual('ARMv7 Processor rev 3 (v7l)', info['brand'])
-		self.assertEqual('1.4000 GHz', info['hz_advertised'])
-		self.assertEqual('1.4000 GHz', info['hz_actual'])
-		self.assertEqual((1400000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((1400000000, 0), info['hz_actual_raw'])
+		self.assertEqual('ARMv7 Processor rev 3 (v7l)', info['brand_raw'])
+		self.assertEqual('1.4000 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('1.4000 GHz', info['hz_actual_friendly'])
+		self.assertEqual((1400000000, 0), info['hz_advertised'])
+		self.assertEqual((1400000000, 0), info['hz_actual'])
 
 	def test_get_cpu_info_from_proc_cpuinfo(self):
 		info = cpuinfo._get_cpu_info_from_proc_cpuinfo()
 
-		self.assertEqual('ARMv7 Processor rev 3 (v7l)', info['brand'])
-		self.assertEqual('ODROID-XU3', info['hardware'])
+		self.assertEqual('ARMv7 Processor rev 3 (v7l)', info['brand_raw'])
+		self.assertEqual('ODROID-XU3', info['hardware_raw'])
 
 		self.assertEqual(
 			['edsp', 'fastmult', 'half', 'idiva', 'idivt', 'neon', 'swp',
@@ -298,17 +299,17 @@ class TestLinux_Odroid_XU3_arm_32(unittest.TestCase):
 	def test_all(self):
 		info = cpuinfo._get_cpu_info_internal()
 
-		self.assertEqual('ARMv7 Processor rev 3 (v7l)', info['brand'])
-		self.assertEqual('ODROID-XU3', info['hardware'])
-		self.assertEqual('1.4000 GHz', info['hz_advertised'])
-		self.assertEqual('1.4000 GHz', info['hz_actual'])
-		self.assertEqual((1400000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((1400000000, 0), info['hz_actual_raw'])
+		self.assertEqual('ARMv7 Processor rev 3 (v7l)', info['brand_raw'])
+		self.assertEqual('ODROID-XU3', info['hardware_raw'])
+		self.assertEqual('1.4000 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('1.4000 GHz', info['hz_actual_friendly'])
+		self.assertEqual((1400000000, 0), info['hz_advertised'])
+		self.assertEqual((1400000000, 0), info['hz_actual'])
 		self.assertEqual('ARM_7', info['arch'])
 		self.assertEqual(32, info['bits'])
 		self.assertEqual(8, info['count'])
 
-		self.assertEqual('armv7l', info['raw_arch_string'])
+		self.assertEqual('armv7l', info['arch_string_raw'])
 
 		self.assertEqual(
 			['edsp', 'fastmult', 'half', 'idiva', 'idivt', 'neon', 'swp',

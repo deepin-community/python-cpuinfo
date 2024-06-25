@@ -5,11 +5,12 @@ from cpuinfo import *
 import helpers
 
 
-class MockDataSource(object):
+class MockDataSource:
 	bits = '64bit'
 	cpu_count = 2
 	is_windows = False
-	raw_arch_string = 'x86_64'
+	arch_string_raw = 'x86_64'
+	uname_string_raw = 'x86_64'
 	can_cpuid = False
 
 	@staticmethod
@@ -27,7 +28,7 @@ class MockDataSource(object):
 	@staticmethod
 	def cat_proc_cpuinfo():
 		returncode = 0
-		output = '''
+		output = r'''
 processor	: 0
 vendor_id	: GenuineIntel
 cpu family	: 6
@@ -89,7 +90,7 @@ power management:
 	@staticmethod
 	def lscpu():
 		returncode = 0
-		output = '''
+		output = r'''
 Architecture:          x86_64
 CPU op-mode(s):        32-bit, 64-bit
 Byte Order:            Little Endian
@@ -123,7 +124,7 @@ Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
 	@staticmethod
 	def dmesg_a():
 		returncode = 0
-		output = '''
+		output = r'''
 [    0.000000] microcode: CPU0 microcode updated early to revision 0x29, date = 2013-06-12
 [    0.000000] Initializing cgroup subsys cpuset
 [    0.000000] Initializing cgroup subsys cpu
@@ -465,26 +466,26 @@ class TestLinuxUbuntu_16_04_X86_64(unittest.TestCase):
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_ibm_pa_features()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_sysinfo()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_cpuid()))
-		self.assertEqual(20, len(cpuinfo._get_cpu_info_internal()))
+		self.assertEqual(21, len(cpuinfo._get_cpu_info_internal()))
 
 	def test_get_cpu_info_from_lscpu(self):
 		info = cpuinfo._get_cpu_info_from_lscpu()
 
-		self.assertEqual('GenuineIntel', info['vendor_id'])
-		self.assertEqual('Intel(R) Pentium(R) CPU G640 @ 2.80GHz', info['brand'])
-		self.assertEqual('2.0708 GHz', info['hz_advertised'])
-		self.assertEqual('2.0708 GHz', info['hz_actual'])
-		self.assertEqual((2070796000, 0), info['hz_advertised_raw'])
-		self.assertEqual((2070796000, 0), info['hz_actual_raw'])
+		self.assertEqual('GenuineIntel', info['vendor_id_raw'])
+		self.assertEqual('Intel(R) Pentium(R) CPU G640 @ 2.80GHz', info['brand_raw'])
+		self.assertEqual('2.0708 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('2.0708 GHz', info['hz_actual_friendly'])
+		self.assertEqual((2070796000, 0), info['hz_advertised'])
+		self.assertEqual((2070796000, 0), info['hz_actual'])
 
 		self.assertEqual(7, info['stepping'])
 		self.assertEqual(42, info['model'])
 		self.assertEqual(6, info['family'])
 
-		self.assertEqual('32 KB', info['l1_instruction_cache_size'])
-		self.assertEqual('32 KB', info['l1_data_cache_size'])
-		self.assertEqual('256 KB', info['l2_cache_size'])
-		self.assertEqual('3072 KB', info['l3_cache_size'])
+		self.assertEqual(32 * 1024, info['l1_instruction_cache_size'])
+		self.assertEqual(32 * 1024, info['l1_data_cache_size'])
+		self.assertEqual(256 * 1024, info['l2_cache_size'])
+		self.assertEqual(3072 * 1024, info['l3_cache_size'])
 		self.assertEqual(
 			['acpi', 'aperfmperf', 'apic', 'arat', 'arch_perfmon', 'bts',
 			'clflush', 'cmov', 'constant_tsc', 'cx16', 'cx8', 'de', 'ds_cpl',
@@ -504,11 +505,11 @@ class TestLinuxUbuntu_16_04_X86_64(unittest.TestCase):
 	def test_get_cpu_info_from_dmesg(self):
 		info = cpuinfo._get_cpu_info_from_dmesg()
 
-		self.assertEqual('Intel(R) Pentium(R) CPU G640 @ 2.80GHz', info['brand'])
-		self.assertEqual('2.8000 GHz', info['hz_advertised'])
-		self.assertEqual('2.8000 GHz', info['hz_actual'])
-		self.assertEqual((2800000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((2800000000, 0), info['hz_actual_raw'])
+		self.assertEqual('Intel(R) Pentium(R) CPU G640 @ 2.80GHz', info['brand_raw'])
+		self.assertEqual('2.8000 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('2.8000 GHz', info['hz_actual_friendly'])
+		self.assertEqual((2800000000, 0), info['hz_advertised'])
+		self.assertEqual((2800000000, 0), info['hz_actual'])
 
 		self.assertEqual(7, info['stepping'])
 		self.assertEqual(42, info['model'])
@@ -517,14 +518,14 @@ class TestLinuxUbuntu_16_04_X86_64(unittest.TestCase):
 	def test_get_cpu_info_from_proc_cpuinfo(self):
 		info = cpuinfo._get_cpu_info_from_proc_cpuinfo()
 
-		self.assertEqual('GenuineIntel', info['vendor_id'])
-		self.assertEqual('Intel(R) Pentium(R) CPU G640 @ 2.80GHz', info['brand'])
-		self.assertEqual('2.8000 GHz', info['hz_advertised'])
-		self.assertEqual('1.9014 GHz', info['hz_actual'])
-		self.assertEqual((2800000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((1901375000, 0), info['hz_actual_raw'])
+		self.assertEqual('GenuineIntel', info['vendor_id_raw'])
+		self.assertEqual('Intel(R) Pentium(R) CPU G640 @ 2.80GHz', info['brand_raw'])
+		self.assertEqual('2.8000 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('1.9014 GHz', info['hz_actual_friendly'])
+		self.assertEqual((2800000000, 0), info['hz_advertised'])
+		self.assertEqual((1901375000, 0), info['hz_actual'])
 
-		self.assertEqual('3072 KB', info['l3_cache_size'])
+		self.assertEqual(3072 * 1024, info['l3_cache_size'])
 
 		self.assertEqual(7, info['stepping'])
 		self.assertEqual(42, info['model'])
@@ -548,24 +549,24 @@ class TestLinuxUbuntu_16_04_X86_64(unittest.TestCase):
 	def test_all(self):
 		info = cpuinfo._get_cpu_info_internal()
 
-		self.assertEqual('GenuineIntel', info['vendor_id'])
-		self.assertEqual('Intel(R) Pentium(R) CPU G640 @ 2.80GHz', info['brand'])
-		self.assertEqual('2.8000 GHz', info['hz_advertised'])
-		self.assertEqual('1.9014 GHz', info['hz_actual'])
-		self.assertEqual((2800000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((1901375000, 0), info['hz_actual_raw'])
+		self.assertEqual('GenuineIntel', info['vendor_id_raw'])
+		self.assertEqual('Intel(R) Pentium(R) CPU G640 @ 2.80GHz', info['brand_raw'])
+		self.assertEqual('2.8000 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('1.9014 GHz', info['hz_actual_friendly'])
+		self.assertEqual((2800000000, 0), info['hz_advertised'])
+		self.assertEqual((1901375000, 0), info['hz_actual'])
 		self.assertEqual('X86_64', info['arch'])
 		self.assertEqual(64, info['bits'])
 		self.assertEqual(2, info['count'])
 
-		self.assertEqual('x86_64', info['raw_arch_string'])
+		self.assertEqual('x86_64', info['arch_string_raw'])
 
-		self.assertEqual('32 KB', info['l1_instruction_cache_size'])
-		self.assertEqual('32 KB', info['l1_data_cache_size'])
+		self.assertEqual(32 * 1024, info['l1_instruction_cache_size'])
+		self.assertEqual(32 * 1024, info['l1_data_cache_size'])
 
-		self.assertEqual('256 KB', info['l2_cache_size'])
+		self.assertEqual(256 * 1024, info['l2_cache_size'])
 
-		self.assertEqual('3072 KB', info['l3_cache_size'])
+		self.assertEqual(3072 * 1024, info['l3_cache_size'])
 
 		self.assertEqual(7, info['stepping'])
 		self.assertEqual(42, info['model'])

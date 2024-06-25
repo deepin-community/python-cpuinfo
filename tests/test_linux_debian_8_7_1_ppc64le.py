@@ -5,11 +5,12 @@ from cpuinfo import *
 import helpers
 
 
-class MockDataSource(object):
+class MockDataSource:
 	bits = '64bit'
 	cpu_count = 2
 	is_windows = False
-	raw_arch_string = 'ppc64le'
+	arch_string_raw = 'ppc64le'
+	uname_string_raw = ''
 	can_cpuid = False
 
 	@staticmethod
@@ -31,7 +32,7 @@ class MockDataSource(object):
 	@staticmethod
 	def ibm_pa_features():
 		returncode = 0
-		output = '''
+		output = r'''
 /proc/device-tree/cpus/PowerPC,POWER8@0/ibm,pa-features
                  18 00 f6 3f c7 c0 80 f0 80 00 00 00 00 00 00 00...?............
                  00 00 80 00 80 00 80 00 80 00                  ..........
@@ -42,7 +43,7 @@ class MockDataSource(object):
 	@staticmethod
 	def cat_proc_cpuinfo():
 		returncode = 0
-		output = '''
+		output = r'''
 processor	: 0
 cpu		: POWER7 (raw), altivec supported
 clock		: 1000.000000MHz
@@ -64,7 +65,7 @@ machine		: CHRP IBM pSeries (emulated by qemu)
 	@staticmethod
 	def dmesg_a():
 		returncode = 0
-		output = '''
+		output = r'''
 [    0.000000] Allocated 4718592 bytes for 2048 pacas at c00000000fb80000
 [    0.000000] Using pSeries machine description
 [    0.000000] Page sizes from device-tree:
@@ -389,7 +390,7 @@ machine		: CHRP IBM pSeries (emulated by qemu)
 	@staticmethod
 	def lscpu():
 		returncode = 0
-		output = '''
+		output = r'''
 Architecture:          ppc64le
 Byte Order:            Little Endian
 CPU(s):                2
@@ -422,7 +423,7 @@ class TestLinuxDebian_8_7_1_ppc64le(unittest.TestCase):
 	def test_returns(self):
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_registry()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_cpufreq_info()))
-		self.assertEqual(2, len(cpuinfo._get_cpu_info_from_lscpu()))
+		self.assertEqual(3, len(cpuinfo._get_cpu_info_from_lscpu()))
 		self.assertEqual(5, len(cpuinfo._get_cpu_info_from_proc_cpuinfo()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_sysctl()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_kstat()))
@@ -431,13 +432,14 @@ class TestLinuxDebian_8_7_1_ppc64le(unittest.TestCase):
 		self.assertEqual(1, len(cpuinfo._get_cpu_info_from_ibm_pa_features()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_sysinfo()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_cpuid()))
-		self.assertEqual(14, len(cpuinfo._get_cpu_info_internal()))
+		self.assertEqual(15, len(cpuinfo._get_cpu_info_internal()))
 
 	def test_get_cpu_info_from_lscpu(self):
 		info = cpuinfo._get_cpu_info_from_lscpu()
-		self.assertEqual('32 KB', info['l1_instruction_cache_size'])
-		self.assertEqual('32 KB', info['l1_data_cache_size'])
-		self.assertEqual(2, len(info))
+		self.assertEqual('IBM pSeries (emulated by qemu)', info['brand_raw'])
+		self.assertEqual(32 * 1024, info['l1_instruction_cache_size'])
+		self.assertEqual(32 * 1024, info['l1_data_cache_size'])
+		self.assertEqual(3, len(info))
 
 	def test_get_cpu_info_from_ibm_pa_features(self):
 		info = cpuinfo._get_cpu_info_from_ibm_pa_features()
@@ -449,26 +451,26 @@ class TestLinuxDebian_8_7_1_ppc64le(unittest.TestCase):
 	def test_get_cpu_info_from_proc_cpuinfo(self):
 		info = cpuinfo._get_cpu_info_from_proc_cpuinfo()
 
-		self.assertEqual('POWER7 (raw), altivec supported', info['brand'])
-		self.assertEqual('1.0000 GHz', info['hz_advertised'])
-		self.assertEqual('1.0000 GHz', info['hz_actual'])
-		self.assertEqual((1000000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((1000000000, 0), info['hz_actual_raw'])
+		self.assertEqual('POWER7 (raw), altivec supported', info['brand_raw'])
+		self.assertEqual('1.0000 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('1.0000 GHz', info['hz_actual_friendly'])
+		self.assertEqual((1000000000, 0), info['hz_advertised'])
+		self.assertEqual((1000000000, 0), info['hz_actual'])
 
 	def test_all(self):
 		info = cpuinfo._get_cpu_info_internal()
 
-		self.assertEqual('POWER7 (raw), altivec supported', info['brand'])
-		self.assertEqual('1.0000 GHz', info['hz_advertised'])
-		self.assertEqual('1.0000 GHz', info['hz_actual'])
-		self.assertEqual((1000000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((1000000000, 0), info['hz_actual_raw'])
+		self.assertEqual('POWER7 (raw), altivec supported', info['brand_raw'])
+		self.assertEqual('1.0000 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('1.0000 GHz', info['hz_actual_friendly'])
+		self.assertEqual((1000000000, 0), info['hz_advertised'])
+		self.assertEqual((1000000000, 0), info['hz_actual'])
 		self.assertEqual('PPC_64', info['arch'])
 		self.assertEqual(64, info['bits'])
 		self.assertEqual(2, info['count'])
-		self.assertEqual('32 KB', info['l1_instruction_cache_size'])
-		self.assertEqual('32 KB', info['l1_data_cache_size'])
-		self.assertEqual('ppc64le', info['raw_arch_string'])
+		self.assertEqual(32 * 1024, info['l1_instruction_cache_size'])
+		self.assertEqual(32 * 1024, info['l1_data_cache_size'])
+		self.assertEqual('ppc64le', info['arch_string_raw'])
 		self.assertEqual(
 			['dabr', 'dabrx', 'dsisr', 'fpu', 'lp', 'mmu', 'pp', 'rislb', 'run', 'slb', 'sprg3'],
 			info['flags']

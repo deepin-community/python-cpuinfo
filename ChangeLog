@@ -1,3 +1,42 @@
+* Release 9.1.0
+	* Fixed Bug #186: Move to Python 3 style classes and default UTF-8 encoding
+	* Fixed Bug #194: Add support for LoongArch
+
+10/25/2022 Release 9.0.0
+	* Fixed Bug #178: Changes to lscpu breaks parsing of cache info
+	* Fixed Bug #152: CPU stepping, model, and family values are blank if 0
+	* Fixed Bug #177: Officially drop support for Python 2
+	* Fixed Bug #171: Replace Python 3.11 deprecated unittest.makeSuite
+	* Fixed Bug #173: Fix lgtm.com alerts
+	* Fixed Bug #165: Support Wheel
+	* Fixed Bug #167: Add support for RISC-V
+
+04/14/2021 Release 8.0.0
+	* Fixed Bug #161: Accept arm64 as an alias for aarch64
+	* Fixed Bug #160: Add MIPS architecture support
+	* Fixed Bug #74: Add option to trace code paths to file
+	* Fixed Bug #157: Remove multiple checks for sestatus
+
+07/05/2020 Release 7.0.0
+	* Fixed Bug #133: CPU flags vary between runs on Mac OS X
+	* Fixed Bug #150: Change 'byte code' to 'machine code'
+	* Fixed Bug #128: Overhead from generating machine code throws off CPUID HZ
+	* Fixed Bug #136: On non BeOS systems, calling sysinfo may open GUI program
+	* Fixed Bug #138: Invalid escape sequences warn when building in Python 3.8
+	* Fixed Bug #147: Remove extended_model and extended_family fields
+	* Fixed Bug #146: CPUID family and model is wrong
+	* Fixed Bug #144: Cache fields should be full ints instead of kb strings
+
+06/11/2020 Release 6.0.0
+	* Fixed Bug #140: The get_cache function has swapped fields
+	* Fixed Bug #142: Remove empty and zeroed fields
+	* Fixed Bug #115: Missing data on Ryzen CPUs
+	* Fixed Bug #122: Rename fields to be more clear
+	* Fixed Bug #125: Add option to return --version
+	* Fixed Bug #126: Make test suite also check SELinux
+	* Fixed Bug #120: Make unit tests also test CPUID
+	* Fixed Bug #69: Add s390x support
+
 03/20/2019 Release 5.0.0
 	* Fixed Bug #117: Remove PyInstaller hacks
 	* Fixed Bug #108: Client script runs multiple times without __main__

@@ -3,7 +3,7 @@ Upstream-Name: py-cpuinfo
 Source: https://github.com/workhorsy/py-cpuinfo
 
 Files: *
-Copyright: 2014-2019 Matthew Brennan Jones <matthew.brennan.jones@gmail.com>
+Copyright: 2014-2022 Matthew Brennan Jones <matthew.brennan.jones@gmail.com>
 License: Expat
 
 Files: debian/*

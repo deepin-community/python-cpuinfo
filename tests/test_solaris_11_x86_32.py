@@ -5,11 +5,12 @@ from cpuinfo import *
 import helpers
 
 
-class MockDataSource(object):
+class MockDataSource:
 	bits = '32bit'
 	cpu_count = 4
 	is_windows = False
-	raw_arch_string = 'i86pc'
+	arch_string_raw = 'i86pc'
+	uname_string_raw = 'x86_32'
 	can_cpuid = False
 
 	@staticmethod
@@ -23,7 +24,7 @@ class MockDataSource(object):
 	@staticmethod
 	def isainfo_vb():
 		returncode = 0
-		output = '''
+		output = r'''
 64-bit amd64 applications
 	ssse3 tscp ahf sse3 sse2 sse fxsr mmx cmov amd_sysc cx8 tsc fpu
 
@@ -33,7 +34,7 @@ class MockDataSource(object):
 	@staticmethod
 	def kstat_m_cpu_info():
 		returncode = 0
-		output = '''
+		output = r'''
 module: cpu_info                        instance: 0
 name:   cpu_info0                       class:    misc
 	brand                           Intel(r) Core(tm) i7 CPU         870  @ 2.93GHz
@@ -79,7 +80,7 @@ name:   cpu_info0                       class:    misc
 
 
 
-class TestSolaris(unittest.TestCase):
+class TestSolaris_11(unittest.TestCase):
 	def setUp(self):
 		helpers.backup_data_source(cpuinfo)
 		helpers.monkey_patch_data_source(cpuinfo, MockDataSource)
@@ -102,17 +103,17 @@ class TestSolaris(unittest.TestCase):
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_ibm_pa_features()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_sysinfo()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_cpuid()))
-		self.assertEqual(16, len(cpuinfo._get_cpu_info_internal()))
+		self.assertEqual(17, len(cpuinfo._get_cpu_info_internal()))
 
 	def test_get_cpu_info_from_kstat(self):
 		info = cpuinfo._get_cpu_info_from_kstat()
 
-		self.assertEqual('GenuineIntel', info['vendor_id'])
-		self.assertEqual('Intel(r) Core(tm) i7 CPU         870  @ 2.93GHz', info['brand'])
-		self.assertEqual('2.9310 GHz', info['hz_advertised'])
-		self.assertEqual('2.9305 GHz', info['hz_actual'])
-		self.assertEqual((2931000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((2930505167, 0), info['hz_actual_raw'])
+		self.assertEqual('GenuineIntel', info['vendor_id_raw'])
+		self.assertEqual('Intel(r) Core(tm) i7 CPU         870  @ 2.93GHz', info['brand_raw'])
+		self.assertEqual('2.9310 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('2.9305 GHz', info['hz_actual_friendly'])
+		self.assertEqual((2931000000, 0), info['hz_advertised'])
+		self.assertEqual((2930505167, 0), info['hz_actual'])
 
 		self.assertEqual(5, info['stepping'])
 		self.assertEqual(30, info['model'])
@@ -126,17 +127,17 @@ class TestSolaris(unittest.TestCase):
 	def test_all(self):
 		info = cpuinfo._get_cpu_info_internal()
 
-		self.assertEqual('GenuineIntel', info['vendor_id'])
-		self.assertEqual('Intel(r) Core(tm) i7 CPU         870  @ 2.93GHz', info['brand'])
-		self.assertEqual('2.9310 GHz', info['hz_advertised'])
-		self.assertEqual('2.9305 GHz', info['hz_actual'])
-		self.assertEqual((2931000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((2930505167, 0), info['hz_actual_raw'])
+		self.assertEqual('GenuineIntel', info['vendor_id_raw'])
+		self.assertEqual('Intel(r) Core(tm) i7 CPU         870  @ 2.93GHz', info['brand_raw'])
+		self.assertEqual('2.9310 GHz', info['hz_advertised_friendly'])
+		self.assertEqual('2.9305 GHz', info['hz_actual_friendly'])
+		self.assertEqual((2931000000, 0), info['hz_advertised'])
+		self.assertEqual((2930505167, 0), info['hz_actual'])
 		self.assertEqual('X86_32', info['arch'])
 		self.assertEqual(32, info['bits'])
 		self.assertEqual(4, info['count'])
 
-		self.assertEqual('i86pc', info['raw_arch_string'])
+		self.assertEqual('i86pc', info['arch_string_raw'])
 
 		self.assertEqual(5, info['stepping'])
 		self.assertEqual(30, info['model'])
