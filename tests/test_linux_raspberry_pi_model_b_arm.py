@@ -5,11 +5,12 @@ from cpuinfo import *
 import helpers
 
 
-class MockDataSource(object):
+class MockDataSource:
 	bits = '32bit'
 	cpu_count = 1
 	is_windows = False
-	raw_arch_string = 'armv6l'
+	arch_string_raw = 'armv6l'
+	uname_string_raw = ''
 
 	@staticmethod
 	def has_proc_cpuinfo():
@@ -22,7 +23,7 @@ class MockDataSource(object):
 	@staticmethod
 	def cat_proc_cpuinfo():
 		returncode = 0
-		output = '''
+		output = r'''
 Processor	: ARMv6-compatible processor rev 7 (v6l)
 BogoMIPS	: 697.95
 Features	: swp half thumb fastmult vfp edsp java tls
@@ -43,7 +44,7 @@ Serial		: 0000000066564a8f
 	@staticmethod
 	def lscpu():
 		returncode = 0
-		output = '''
+		output = r'''
 Architecture:          armv6l
 Byte Order:            Little Endian
 CPU(s):                1
@@ -81,21 +82,21 @@ class TestLinux_RaspberryPiModelB(unittest.TestCase):
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_ibm_pa_features()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_sysinfo()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_cpuid()))
-		self.assertEqual(13, len(cpuinfo._get_cpu_info_internal()))
+		self.assertEqual(14, len(cpuinfo._get_cpu_info_internal()))
 
 	def test_get_cpu_info_from_lscpu(self):
 		info = cpuinfo._get_cpu_info_from_lscpu()
 
-		self.assertEqual('700.0000 MHz', info['hz_advertised'])
-		self.assertEqual('700.0000 MHz', info['hz_actual'])
-		self.assertEqual((700000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((700000000, 0), info['hz_actual_raw'])
+		self.assertEqual('700.0000 MHz', info['hz_advertised_friendly'])
+		self.assertEqual('700.0000 MHz', info['hz_actual_friendly'])
+		self.assertEqual((700000000, 0), info['hz_advertised'])
+		self.assertEqual((700000000, 0), info['hz_actual'])
 
 	def test_get_cpu_info_from_proc_cpuinfo(self):
 		info = cpuinfo._get_cpu_info_from_proc_cpuinfo()
 
-		self.assertEqual('BCM2708', info['hardware'])
-		self.assertEqual('ARMv6-compatible processor rev 7 (v6l)', info['brand'])
+		self.assertEqual('BCM2708', info['hardware_raw'])
+		self.assertEqual('ARMv6-compatible processor rev 7 (v6l)', info['brand_raw'])
 
 		self.assertEqual(
 			['edsp', 'fastmult', 'half', 'java', 'swp', 'thumb', 'tls', 'vfp']
@@ -106,17 +107,17 @@ class TestLinux_RaspberryPiModelB(unittest.TestCase):
 	def test_all(self):
 		info = cpuinfo._get_cpu_info_internal()
 
-		self.assertEqual('BCM2708', info['hardware'])
-		self.assertEqual('ARMv6-compatible processor rev 7 (v6l)', info['brand'])
-		self.assertEqual('700.0000 MHz', info['hz_advertised'])
-		self.assertEqual('700.0000 MHz', info['hz_actual'])
-		self.assertEqual((700000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((700000000, 0), info['hz_actual_raw'])
+		self.assertEqual('BCM2708', info['hardware_raw'])
+		self.assertEqual('ARMv6-compatible processor rev 7 (v6l)', info['brand_raw'])
+		self.assertEqual('700.0000 MHz', info['hz_advertised_friendly'])
+		self.assertEqual('700.0000 MHz', info['hz_actual_friendly'])
+		self.assertEqual((700000000, 0), info['hz_advertised'])
+		self.assertEqual((700000000, 0), info['hz_actual'])
 		self.assertEqual('ARM_7', info['arch'])
 		self.assertEqual(32, info['bits'])
 		self.assertEqual(1, info['count'])
 
-		self.assertEqual('armv6l', info['raw_arch_string'])
+		self.assertEqual('armv6l', info['arch_string_raw'])
 
 		self.assertEqual(
 			['edsp', 'fastmult', 'half', 'java', 'swp', 'thumb', 'tls', 'vfp']

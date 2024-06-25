@@ -5,11 +5,12 @@ from cpuinfo import *
 import helpers
 
 
-class MockDataSource(object):
+class MockDataSource:
 	bits = '64bit'
 	cpu_count = 1
 	is_windows = True
-	raw_arch_string = 'x86_64'
+	arch_string_raw = 'x86_64'
+	uname_string_raw = 'x86_64'
 	can_cpuid = False
 
 	@staticmethod
@@ -57,12 +58,8 @@ class MockDataSource(object):
 		return 0, ""
 
 	@staticmethod
-	def sestatus_allow_execheap():
-		return True
-
-	@staticmethod
-	def sestatus_allow_execmem():
-		return True
+	def sestatus_b():
+		return 0, ""
 
 	@staticmethod
 	def dmesg_a():
@@ -94,11 +91,11 @@ class MockDataSource(object):
 		return {}
 
 	@staticmethod
-	def winreg_vendor_id():
+	def winreg_vendor_id_raw():
 		return {}
 
 	@staticmethod
-	def winreg_raw_arch_string():
+	def winreg_arch_string_raw():
 		return {}
 
 	@staticmethod

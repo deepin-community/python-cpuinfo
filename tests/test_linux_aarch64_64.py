@@ -5,11 +5,12 @@ from cpuinfo import *
 import helpers
 
 
-class MockDataSource(object):
+class MockDataSource:
 	bits = '64bit'
 	cpu_count = 6
 	is_windows = False
-	raw_arch_string = 'aarch64'
+	arch_string_raw = 'aarch64'
+	uname_string_raw = ''
 	can_cpuid = False
 
 	@staticmethod
@@ -23,7 +24,7 @@ class MockDataSource(object):
 	@staticmethod
 	def cat_proc_cpuinfo():
 		returncode = 0
-		output = '''
+		output = r'''
 processor       : 90
 BogoMIPS        : 200.00
 Features        : fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics
@@ -85,7 +86,7 @@ CPU revision    : 0
 	@staticmethod
 	def lscpu():
 		returncode = 0
-		output = '''
+		output = r'''
 Architecture:          aarch64
 Byte Order:            Little Endian
 CPU(s):                96
@@ -126,15 +127,15 @@ class TestLinux_Aarch_64(unittest.TestCase):
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_ibm_pa_features()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_sysinfo()))
 		self.assertEqual(0, len(cpuinfo._get_cpu_info_from_cpuid()))
-		self.assertEqual(10, len(cpuinfo._get_cpu_info_internal()))
+		self.assertEqual(11, len(cpuinfo._get_cpu_info_internal()))
 
 	def test_get_cpu_info_from_lscpu(self):
 		info = cpuinfo._get_cpu_info_from_lscpu()
 
-		self.assertEqual('78 KB', info['l1_instruction_cache_size'])
-		self.assertEqual('32 KB', info['l1_data_cache_size'])
+		self.assertEqual(78 * 1024, info['l1_instruction_cache_size'])
+		self.assertEqual(32 * 1024, info['l1_data_cache_size'])
 
-		self.assertEqual('16384 KB', info['l2_cache_size'])
+		self.assertEqual(16384 * 1024, info['l2_cache_size'])
 
 		self.assertEqual(3, len(info))
 
@@ -152,34 +153,32 @@ class TestLinux_Aarch_64(unittest.TestCase):
 	def test_all(self):
 		info = cpuinfo._get_cpu_info_internal()
 
-		self.assertEqual('', info['vendor_id'])
-		self.assertEqual('FIXME', info['hardware'])
-		self.assertEqual('FIXME', info['brand'])
-		self.assertEqual('FIXME', info['hz_advertised'])
-		self.assertEqual('FIXME', info['hz_actual'])
-		self.assertEqual((1000000000, 0), info['hz_advertised_raw'])
-		self.assertEqual((1000000000, 0), info['hz_actual_raw'])
+		self.assertEqual('', info['vendor_id_raw'])
+		self.assertEqual('FIXME', info['hardware_raw'])
+		self.assertEqual('FIXME', info['brand_raw'])
+		self.assertEqual('FIXME', info['hz_advertised_friendly'])
+		self.assertEqual('FIXME', info['hz_actual_friendly'])
+		self.assertEqual((1000000000, 0), info['hz_advertised'])
+		self.assertEqual((1000000000, 0), info['hz_actual'])
 		self.assertEqual('ARM_8', info['arch'])
 		self.assertEqual(64, info['bits'])
 		self.assertEqual(6, info['count'])
 
-		self.assertEqual('aarch64', info['raw_arch_string'])
+		self.assertEqual('aarch64', info['arch_string_raw'])
 
-		self.assertEqual('78K', info['l1_instruction_cache_size'])
-		self.assertEqual('32K', info['l1_data_cache_size'])
+		self.assertEqual(78 * 1024, info['l1_instruction_cache_size'])
+		self.assertEqual(32 * 1024, info['l1_data_cache_size'])
 
-		self.assertEqual('16384K', info['l2_cache_size'])
+		self.assertEqual(16384 * 1024, info['l2_cache_size'])
 		self.assertEqual(0, info['l2_cache_line_size'])
 		self.assertEqual(0, info['l2_cache_associativity'])
 
-		self.assertEqual('', info['l3_cache_size'])
+		self.assertEqual(0, info['l3_cache_size'])
 
 		self.assertEqual(0, info['stepping'])
 		self.assertEqual(0, info['model'])
 		self.assertEqual(0, info['family'])
 		self.assertEqual(0, info['processor_type'])
-		self.assertEqual(0, info['extended_model'])
-		self.assertEqual(0, info['extended_family'])
 		self.assertEqual(
 			['aes', 'asimd', 'atomics', 'crc32', 'evtstrm',
 			'fp', 'pmull', 'sha1', 'sha2']

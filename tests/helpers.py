@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 
-# Copyright (c) 2014-2019, Matthew Brennan Jones <matthew.brennan.jones@gmail.com>
-# Py-cpuinfo gets CPU info with pure Python 2 & 3
+# Copyright (c) 2014-2022 Matthew Brennan Jones <matthew.brennan.jones@gmail.com>
+# Py-cpuinfo gets CPU info with pure Python
 # It uses the MIT License
 # It is hosted at: https://github.com/workhorsy/py-cpuinfo
 #
@@ -27,7 +26,7 @@
 
 
 
-class EmptyDataSource(object):
+class EmptyDataSource:
 	@staticmethod
 	def has_proc_cpuinfo():
 		return False
@@ -115,8 +114,10 @@ def _actual_monkey_patch_data_source(cpuinfo, NewDataSource):
 		cpuinfo.DataSource.cpu_count = NewDataSource.cpu_count
 	if hasattr(NewDataSource, 'is_windows'):
 		cpuinfo.DataSource.is_windows = NewDataSource.is_windows
-	if hasattr(NewDataSource, 'raw_arch_string'):
-		cpuinfo.DataSource.raw_arch_string = NewDataSource.raw_arch_string
+	if hasattr(NewDataSource, 'arch_string_raw'):
+		cpuinfo.DataSource.arch_string_raw = NewDataSource.arch_string_raw
+	if hasattr(NewDataSource, 'uname_string_raw'):
+		cpuinfo.DataSource.uname_string_raw = NewDataSource.uname_string_raw
 	if hasattr(NewDataSource, 'can_cpuid'):
 		cpuinfo.DataSource.can_cpuid = NewDataSource.can_cpuid
 
@@ -148,10 +149,8 @@ def _actual_monkey_patch_data_source(cpuinfo, NewDataSource):
 		cpuinfo.DataSource.cat_proc_cpuinfo = staticmethod(NewDataSource.cat_proc_cpuinfo)
 	if hasattr(NewDataSource, 'cpufreq_info'):
 		cpuinfo.DataSource.cpufreq_info = staticmethod(NewDataSource.cpufreq_info)
-	if hasattr(NewDataSource, 'sestatus_allow_execheap'):
-		cpuinfo.DataSource.sestatus_allow_execheap = staticmethod(NewDataSource.sestatus_allow_execheap)
-	if hasattr(NewDataSource, 'sestatus_allow_execmem'):
-		cpuinfo.DataSource.sestatus_allow_execmem = staticmethod(NewDataSource.sestatus_allow_execmem)
+	if hasattr(NewDataSource, 'sestatus_b'):
+		cpuinfo.DataSource.sestatus_b = staticmethod(NewDataSource.sestatus_b)
 	if hasattr(NewDataSource, 'dmesg_a'):
 		cpuinfo.DataSource.dmesg_a = staticmethod(NewDataSource.dmesg_a)
 	if hasattr(NewDataSource, 'cat_var_run_dmesg_boot'):
@@ -172,10 +171,10 @@ def _actual_monkey_patch_data_source(cpuinfo, NewDataSource):
 		cpuinfo.DataSource.sysinfo_cpu = staticmethod(NewDataSource.sysinfo_cpu)
 	if hasattr(NewDataSource, 'winreg_processor_brand'):
 		cpuinfo.DataSource.winreg_processor_brand = staticmethod(NewDataSource.winreg_processor_brand)
-	if hasattr(NewDataSource, 'winreg_vendor_id'):
-		cpuinfo.DataSource.winreg_vendor_id = staticmethod(NewDataSource.winreg_vendor_id)
-	if hasattr(NewDataSource, 'winreg_raw_arch_string'):
-		cpuinfo.DataSource.winreg_raw_arch_string = staticmethod(NewDataSource.winreg_raw_arch_string)
+	if hasattr(NewDataSource, 'winreg_vendor_id_raw'):
+		cpuinfo.DataSource.winreg_vendor_id_raw = staticmethod(NewDataSource.winreg_vendor_id_raw)
+	if hasattr(NewDataSource, 'winreg_arch_string_raw'):
+		cpuinfo.DataSource.winreg_arch_string_raw = staticmethod(NewDataSource.winreg_arch_string_raw)
 	if hasattr(NewDataSource, 'winreg_hz_actual'):
 		cpuinfo.DataSource.winreg_hz_actual = staticmethod(NewDataSource.winreg_hz_actual)
 	if hasattr(NewDataSource, 'winreg_feature_bits'):
@@ -187,7 +186,8 @@ def backup_data_source(cpuinfo):
 	cpuinfo.BackupDataSource.bits = cpuinfo.DataSource.bits
 	cpuinfo.BackupDataSource.cpu_count = cpuinfo.DataSource.cpu_count
 	cpuinfo.BackupDataSource.is_windows = cpuinfo.DataSource.is_windows
-	cpuinfo.BackupDataSource.raw_arch_string = cpuinfo.DataSource.raw_arch_string
+	cpuinfo.BackupDataSource.arch_string_raw = cpuinfo.DataSource.arch_string_raw
+	cpuinfo.BackupDataSource.uname_string_raw = cpuinfo.DataSource.uname_string_raw
 	cpuinfo.BackupDataSource.can_cpuid = cpuinfo.DataSource.can_cpuid
 
 	cpuinfo.BackupDataSource.has_proc_cpuinfo = staticmethod(cpuinfo.DataSource.has_proc_cpuinfo)
@@ -204,8 +204,7 @@ def backup_data_source(cpuinfo):
 	cpuinfo.BackupDataSource.has_wmic = staticmethod(cpuinfo.DataSource.has_wmic)
 	cpuinfo.BackupDataSource.cat_proc_cpuinfo = staticmethod(cpuinfo.DataSource.cat_proc_cpuinfo)
 	cpuinfo.BackupDataSource.cpufreq_info = staticmethod(cpuinfo.DataSource.cpufreq_info)
-	cpuinfo.BackupDataSource.sestatus_allow_execheap = staticmethod(cpuinfo.DataSource.sestatus_allow_execheap)
-	cpuinfo.BackupDataSource.sestatus_allow_execmem = staticmethod(cpuinfo.DataSource.sestatus_allow_execmem)
+	cpuinfo.BackupDataSource.sestatus_b = staticmethod(cpuinfo.DataSource.sestatus_b)
 	cpuinfo.BackupDataSource.dmesg_a = staticmethod(cpuinfo.DataSource.dmesg_a)
 	cpuinfo.BackupDataSource.cat_var_run_dmesg_boot = staticmethod(cpuinfo.DataSource.cat_var_run_dmesg_boot)
 	cpuinfo.BackupDataSource.sysctl_machdep_cpu_hw_cpufrequency = staticmethod(cpuinfo.DataSource.sysctl_machdep_cpu_hw_cpufrequency)
@@ -216,8 +215,8 @@ def backup_data_source(cpuinfo):
 	cpuinfo.BackupDataSource.wmic_cpu = staticmethod(cpuinfo.DataSource.wmic_cpu)
 	cpuinfo.BackupDataSource.sysinfo_cpu = staticmethod(cpuinfo.DataSource.sysinfo_cpu)
 	cpuinfo.BackupDataSource.winreg_processor_brand = staticmethod(cpuinfo.DataSource.winreg_processor_brand)
-	cpuinfo.BackupDataSource.winreg_vendor_id = staticmethod(cpuinfo.DataSource.winreg_vendor_id)
-	cpuinfo.BackupDataSource.winreg_raw_arch_string = staticmethod(cpuinfo.DataSource.winreg_raw_arch_string)
+	cpuinfo.BackupDataSource.winreg_vendor_id_raw = staticmethod(cpuinfo.DataSource.winreg_vendor_id_raw)
+	cpuinfo.BackupDataSource.winreg_arch_string_raw = staticmethod(cpuinfo.DataSource.winreg_arch_string_raw)
 	cpuinfo.BackupDataSource.winreg_hz_actual = staticmethod(cpuinfo.DataSource.winreg_hz_actual)
 	cpuinfo.BackupDataSource.winreg_feature_bits = staticmethod(cpuinfo.DataSource.winreg_feature_bits)
 
@@ -225,7 +224,8 @@ def restore_data_source(cpuinfo):
 	cpuinfo.DataSource.bits = cpuinfo.BackupDataSource.bits
 	cpuinfo.DataSource.cpu_count = cpuinfo.BackupDataSource.cpu_count
 	cpuinfo.DataSource.is_windows = cpuinfo.BackupDataSource.is_windows
-	cpuinfo.DataSource.raw_arch_string = cpuinfo.BackupDataSource.raw_arch_string
+	cpuinfo.DataSource.arch_string_raw = cpuinfo.BackupDataSource.arch_string_raw
+	cpuinfo.DataSource.uname_string_raw = cpuinfo.BackupDataSource.uname_string_raw
 	cpuinfo.DataSource.can_cpuid = cpuinfo.BackupDataSource.can_cpuid
 
 	cpuinfo.DataSource.has_proc_cpuinfo = cpuinfo.BackupDataSource.has_proc_cpuinfo
@@ -242,8 +242,7 @@ def restore_data_source(cpuinfo):
 	cpuinfo.DataSource.has_wmic = cpuinfo.BackupDataSource.has_wmic
 	cpuinfo.DataSource.cat_proc_cpuinfo = cpuinfo.BackupDataSource.cat_proc_cpuinfo
 	cpuinfo.DataSource.cpufreq_info = cpuinfo.BackupDataSource.cpufreq_info
-	cpuinfo.DataSource.sestatus_allow_execheap = cpuinfo.BackupDataSource.sestatus_allow_execheap
-	cpuinfo.DataSource.sestatus_allow_execmem = cpuinfo.BackupDataSource.sestatus_allow_execmem
+	cpuinfo.DataSource.sestatus_b = cpuinfo.BackupDataSource.sestatus_b
 	cpuinfo.DataSource.dmesg_a = cpuinfo.BackupDataSource.dmesg_a
 	cpuinfo.DataSource.cat_var_run_dmesg_boot = cpuinfo.BackupDataSource.cat_var_run_dmesg_boot
 	cpuinfo.DataSource.sysctl_machdep_cpu_hw_cpufrequency = cpuinfo.BackupDataSource.sysctl_machdep_cpu_hw_cpufrequency
@@ -254,7 +253,66 @@ def restore_data_source(cpuinfo):
 	cpuinfo.DataSource.wmic_cpu = cpuinfo.BackupDataSource.wmic_cpu
 	cpuinfo.DataSource.sysinfo_cpu = cpuinfo.BackupDataSource.sysinfo_cpu
 	cpuinfo.DataSource.winreg_processor_brand = cpuinfo.BackupDataSource.winreg_processor_brand
-	cpuinfo.DataSource.winreg_vendor_id = cpuinfo.BackupDataSource.winreg_vendor_id
-	cpuinfo.DataSource.winreg_raw_arch_string = cpuinfo.BackupDataSource.winreg_raw_arch_string
+	cpuinfo.DataSource.winreg_vendor_id_raw = cpuinfo.BackupDataSource.winreg_vendor_id_raw
+	cpuinfo.DataSource.winreg_arch_string_raw = cpuinfo.BackupDataSource.winreg_arch_string_raw
 	cpuinfo.DataSource.winreg_hz_actual = cpuinfo.BackupDataSource.winreg_hz_actual
 	cpuinfo.DataSource.winreg_feature_bits = cpuinfo.BackupDataSource.winreg_feature_bits
+
+def backup_cpuid(cpuinfo):
+	BackupCPUID = type('BackupCPUID', (object,), {})
+	cpuinfo.BackupCPUID = BackupCPUID()
+	cpuinfo.BackupCPUID._run_asm = cpuinfo.CPUID._run_asm
+	cpuinfo.BackupCPUID._asm_func = cpuinfo.CPUID._asm_func
+
+def monkey_patch_cpuid(cpuinfo, return_hz, return_values):
+	class MockCPUID:
+		_counter = 0
+		_is_first = False
+
+		def _asm_func(self, restype=None, argtypes=(), machine_code=[]):
+			class CPUIDGetTicks:
+				# NOTE: This assumes that the function returned is a get_ticks function
+				def func(self):
+					MockCPUID._is_first = not MockCPUID._is_first
+
+					if MockCPUID._is_first:
+						return return_hz
+					else:
+						return 0
+
+				def free(self):
+					pass
+
+			return CPUIDGetTicks()
+
+		def _run_asm(self, *machine_code):
+			result = return_values[MockCPUID._counter]
+			MockCPUID._counter += 1
+			if MockCPUID._counter == len(return_values):
+				MockCPUID._counter = 0
+			return result
+
+	cpuinfo.CPUID._run_asm = MockCPUID.__dict__['_run_asm']
+	cpuinfo.CPUID._asm_func = MockCPUID.__dict__['_asm_func']
+
+def restore_cpuid(cpuinfo):
+	cpuinfo.CPUID._run_asm = cpuinfo.BackupCPUID._run_asm
+	cpuinfo.CPUID._asm_func = cpuinfo.BackupCPUID._asm_func
+
+
+def backup_asm(cpuinfo):
+	BackupASM = type('BackupASM', (object,), {})
+	cpuinfo.BackupASM = BackupASM()
+	cpuinfo.BackupASM.compile = cpuinfo.ASM.compile
+	cpuinfo.BackupASM.run = cpuinfo.ASM.run
+	cpuinfo.BackupASM.free = cpuinfo.ASM.free
+
+def monkey_patch_asm(cpuinfo, NewASM):
+	cpuinfo.ASM.compile = NewASM.__dict__['compile']
+	cpuinfo.ASM.run = NewASM.__dict__['run']
+	cpuinfo.ASM.free = NewASM.__dict__['free']
+
+def restore_asm(cpuinfo):
+	cpuinfo.ASM.compile = cpuinfo.BackupASM.compile
+	cpuinfo.ASM.run = cpuinfo.BackupASM.run
+	cpuinfo.ASM.free = cpuinfo.BackupASM.free
