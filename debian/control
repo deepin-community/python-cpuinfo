@@ -2,15 +2,15 @@ Source: python-cpuinfo
 Section: python
 Priority: optional
 Maintainer: Debian Python Team <team+python@tracker.debian.org>
-Uploaders: Boyuan Yang <byang@debian.org>
 Build-Depends: debhelper-compat (= 13),
                dh-sequence-python3,
+               pybuild-plugin-pyproject,
                python3-all,
                python3-setuptools,
                python3-pytest <!nocheck>
-Standards-Version: 4.6.2
+Standards-Version: 4.7.0
 Homepage: https://github.com/workhorsy/py-cpuinfo
-Testsuite: autopkgtest-pkg-python
+Testsuite: autopkgtest-pkg-pybuild
 Vcs-Git: https://salsa.debian.org/python-team/packages/python-cpuinfo.git
 Vcs-Browser: https://salsa.debian.org/python-team/packages/python-cpuinfo
 

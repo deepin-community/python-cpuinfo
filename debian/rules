@@ -3,6 +3,13 @@
 export PYBUILD_NAME=cpuinfo
 export PYBUILD_DEST_DIR_python3=debian/python3-$(PYBUILD_NAME)
 export PYBUILD_DEST_DIR_APP=debian/py-cpuinfo
+ifeq ($(PYBUILD_AUTOPKGTEST),1)
+# Set things up so that test_cli uses the installed packages.
+export PYBUILD_BEFORE_TEST=\
+	mkdir -p {build_dir}/cpuinfo && \
+	ln -s /usr/bin/py-cpuinfo {build_dir}/cpuinfo/cpuinfo.py
+export PYBUILD_AFTER_TEST=rm -rf {build_dir}/cpuinfo
+endif
 
 %:
 	dh $@ --buildsystem=pybuild

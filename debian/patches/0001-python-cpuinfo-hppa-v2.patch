@@ -1,0 +1,61 @@
+From: Helge Deller <deller@gmx.de>
+Subject: Add support for hppa / parisc CPUs
+Date: Tue, 7 Jan 2025 17:59:24 +0100
+
+Allow to recognize the parisc cpus.
+This fixes dependend packages from build failures, e.g.
+python-pyppmd, see:
+https://buildd.debian.org/status/fetch.php?pkg=python-pyppmd&arch=hppa&ver=1.1.1%2Bds-1&stamp=1736247366&raw=0
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Bug-Debian: https://bugs.debian.org/1092350
+Forwarded: no
+
+v2:
+- fix check in /tests/test_invalid_cpu.py
+
+---
+diff -up ./cpuinfo/cpuinfo.py.org ./cpuinfo/cpuinfo.py
+--- ./cpuinfo/cpuinfo.py.org	2025-01-07 13:36:31.820569455 +0000
++++ ./cpuinfo/cpuinfo.py	2025-01-07 14:05:18.818776037 +0000
+@@ -360,6 +360,7 @@ def _read_windows_registry_key(key_name,
+ def _check_arch():
+ 	arch, bits = _parse_arch(DataSource.arch_string_raw)
+ 	if not arch in ['ARM_7', 'ARM_8',
++	                'HPPA_32', 'HPPA_64',
+ 	                'LOONG_32', 'LOONG_64',
+ 	                'MIPS_32', 'MIPS_64',
+ 	                'PPC_32', 'PPC_64',
+@@ -368,7 +369,7 @@ def _check_arch():
+ 	                'S390X',
+ 	                'X86_32', 'X86_64']:
+ 		raise Exception("py-cpuinfo currently only works on X86 "
+-		                "and some ARM/LoongArch/MIPS/PPC/RISCV/SPARC/S390X CPUs.")
++				"and some ARM/HPPA/LoongArch/MIPS/PPC/RISCV/SPARC/S390X CPUs." )
+ 
+ def _obj_to_b64(thing):
+ 	import pickle
+@@ -841,6 +842,14 @@ def _parse_arch(arch_string_raw):
+ 	elif re.match(r'^loongarch64$', arch_string_raw):
+ 		arch = 'LOONG_64'
+ 		bits = 64
++	# HPPA
++	elif re.match(r'^parisc$|^parisc64$', arch_string_raw):
++		if platform.architecture()[0].startswith("32"):
++			arch = 'HPPA_32'
++			bits = 32
++		else:
++			arch = 'HPPA_64'
++			bits = 64
+ 
+ 	return (arch, bits)
+ 
+diff -up ./tests/test_invalid_cpu.py.org ./tests/test_invalid_cpu.py
+--- ./tests/test_invalid_cpu.py.org	2025-01-07 14:41:41.926558657 +0000
++++ ./tests/test_invalid_cpu.py	2025-01-07 14:41:48.962519113 +0000
+@@ -33,4 +33,4 @@ class TestInvalidCPU(unittest.TestCase):
+ 			cpuinfo._check_arch()
+ 			self.fail('Failed to raise Exception')
+ 		except Exception as err:
+-			self.assertEqual('py-cpuinfo currently only works on X86 and some ARM/LoongArch/MIPS/PPC/RISCV/SPARC/S390X CPUs.', err.args[0])
++			self.assertEqual('py-cpuinfo currently only works on X86 and some ARM/HPPA/LoongArch/MIPS/PPC/RISCV/SPARC/S390X CPUs.', err.args[0])
