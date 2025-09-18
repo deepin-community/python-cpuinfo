@@ -1,0 +1,50 @@
+From 84abdf34e1f54f1da2257c8ac3b71d02f8735008 Mon Sep 17 00:00:00 2001
+From: hudeng <hudeng@deepin.org>
+Date: Mon, 27 Oct 2025 17:08:55 +0800
+Subject: [PATCH] feat: deepin add sw64 support
+
+---
+ cpuinfo/cpuinfo.py        | 7 ++++++-
+ tests/test_invalid_cpu.py | 2 +-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/cpuinfo/cpuinfo.py b/cpuinfo/cpuinfo.py
+index 6f1685c..60470a2 100644
+--- a/cpuinfo/cpuinfo.py
++++ b/cpuinfo/cpuinfo.py
+@@ -367,9 +367,10 @@ def _check_arch():
+ 	                'RISCV_32', 'RISCV_64',
+ 	                'SPARC_32', 'SPARC_64',
+ 	                'S390X',
++	                'SW_64',
+ 	                'X86_32', 'X86_64']:
+ 		raise Exception("py-cpuinfo currently only works on X86 "
+-				"and some ARM/HPPA/LoongArch/MIPS/PPC/RISCV/SPARC/S390X CPUs." )
++				"and some ARM/HPPA/LoongArch/MIPS/PPC/RISCV/SPARC/S390X/SW_64 CPUs." )
+ 
+ def _obj_to_b64(thing):
+ 	import pickle
+@@ -821,6 +822,10 @@ def _parse_arch(arch_string_raw):
+ 	elif re.match(r'^s390x$', arch_string_raw):
+ 		arch = 'S390X'
+ 		bits = 64
++	# SW_64
++	elif re.match(r'^sw_64$', arch_string_raw):
++		arch = 'SW_64'
++		bits = 64
+ 	# MIPS
+ 	elif re.match(r'^mips$', arch_string_raw):
+ 		arch = 'MIPS_32'
+diff --git a/tests/test_invalid_cpu.py b/tests/test_invalid_cpu.py
+index e3cb092..4bc1fa9 100644
+--- a/tests/test_invalid_cpu.py
++++ b/tests/test_invalid_cpu.py
+@@ -33,4 +33,4 @@ class TestInvalidCPU(unittest.TestCase):
+ 			cpuinfo._check_arch()
+ 			self.fail('Failed to raise Exception')
+ 		except Exception as err:
+-			self.assertEqual('py-cpuinfo currently only works on X86 and some ARM/HPPA/LoongArch/MIPS/PPC/RISCV/SPARC/S390X CPUs.', err.args[0])
++			self.assertEqual('py-cpuinfo currently only works on X86 and some ARM/HPPA/LoongArch/MIPS/PPC/RISCV/SPARC/S390X/SW_64 CPUs.', err.args[0])
+-- 
+2.50.1
+
