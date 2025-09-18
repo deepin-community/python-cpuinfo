@@ -1,3 +1,20 @@
+python-cpuinfo (9.0.0+git20221119-3) unstable; urgency=medium
+
+  * QA upload.
+  * Orphan the package. (See #1093668)
+  * debian/patches/0001-python-cpuinfo-hppa-v2.patch: Add patch to
+    fix hppa support. (Closes: #1092350)
+
+ -- Boyuan Yang <byang@debian.org>  Mon, 20 Jan 2025 22:27:16 -0500
+
+python-cpuinfo (9.0.0+git20221119-2) unstable; urgency=medium
+
+  * Team upload.
+  * Use pybuild-plugin-pyproject.
+  * Switch to autopkgtest-pkg-pybuild.
+
+ -- Colin Watson <cjwatson@debian.org>  Tue, 30 Jul 2024 12:57:43 +0100
+
 python-cpuinfo (9.0.0+git20221119-1) unstable; urgency=medium
 
   * New upstream snapshot.
